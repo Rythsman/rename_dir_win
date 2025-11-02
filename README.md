@@ -10,12 +10,19 @@ Windows 目录前缀重命名工具
 
 ## 环境准备（Windows）
 ```powershell
-# 1) 安装依赖
+# 1) 创建虚拟环境
 python -m venv .venv
 .\.venv\Scripts\activate
-pip install -r requirements.txt
 
-# 2) 运行（开发态）
+# 2) 安装 PySimpleGUI（需要从私有 PyPI 服务器安装）
+python -m pip uninstall PySimpleGUI
+python -m pip cache purge
+python -m pip install --extra-index-url https://PySimpleGUI.net/install PySimpleGUI
+
+# 3) 安装其他依赖
+pip install pyinstaller
+
+# 4) 运行（开发态）
 python main.py
 ```
 
@@ -42,6 +49,24 @@ pyinstaller --noconfirm --onefile --windowed main.py
 ```
 
 > 如需自定义图标，可添加 `--icon icon.ico`。
+
+## CI/CD (GitHub Actions)
+
+项目已配置 GitHub Actions 工作流：
+
+- **CI 工作流** (`.github/workflows/ci.yml`)：
+  - 在 Windows 环境下测试多个 Python 版本 (3.9, 3.10, 3.11, 3.12)
+  - 从私有 PyPI 服务器正确安装 PySimpleGUI
+  - 验证模块导入和语法检查
+  - **触发条件**：push 到 `main`/`develop` 分支或创建 PR 时自动运行
+
+- **构建工作流** (`.github/workflows/build.yml`)：
+  - 自动构建 Windows 可执行文件（输出：`DirPrefixRenamer.exe`）
+  - 从私有 PyPI 服务器正确安装 PySimpleGUI
+  - **触发条件**：
+    - 创建版本标签时（如 `v1.0.0`）：自动构建并创建 GitHub Release
+    - Push 到 `main` 分支且修改了以下文件时：`app/**`、`main.py`、`requirements.txt`、`.github/workflows/build.yml`
+    - 手动触发：在 GitHub Actions 页面点击 "Run workflow"
 
 ## 注意事项
 - 权限：如遇只读或无权限文件，程序会记录错误并继续处理。

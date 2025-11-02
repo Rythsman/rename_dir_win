@@ -1,3 +1,5 @@
+# PySimpleGUI now requires installation from private PyPI server
+# Install with: pip install --extra-index-url https://PySimpleGUI.net/install PySimpleGUI
 PySimpleGUI
 pyinstaller
 
