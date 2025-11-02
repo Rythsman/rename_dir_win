@@ -47,7 +47,16 @@ def _worker(
 
 def run_app() -> None:
     """Launch the PySimpleGUI application."""
-    sg.theme("SystemDefault")
+    # Theme compatibility (PSG v4/v5): use theme if present; otherwise skip.
+    try:
+        if hasattr(sg, "theme"):
+            sg.theme("SystemDefault")
+        elif hasattr(sg, "theme_global"):
+            # Some PSG variants expose theme_global
+            sg.theme_global("SystemDefault")  # type: ignore[attr-defined]
+    except Exception:
+        # Do not fail UI launch due to theme issues.
+        pass
 
     layout = [
         [
@@ -57,7 +66,7 @@ def run_app() -> None:
         ],
         [
             sg.Checkbox("Include root files", key="-INCLUDE_ROOT-", default=False),
-            sg.Push(),
+            (sg.Push() if hasattr(sg, "Push") else sg.Text("", expand_x=True)),
             sg.Button("Start", key="-START-", bind_return_key=True),
         ],
         [
